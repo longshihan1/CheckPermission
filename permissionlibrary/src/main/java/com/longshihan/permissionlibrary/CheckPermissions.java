@@ -25,16 +25,15 @@ public class CheckPermissions {
 
     static final String TAG = CheckPermissions.class.getSimpleName();
     @VisibleForTesting
-    Lazy<PermissionFragment> mRxPermissionsFragment;
+    Lazy<PermissionFragment> mPermissionsFragment;
+
     public CheckPermissions(@NonNull final FragmentActivity activity) {
-        mRxPermissionsFragment = getLazySingleton(activity.getSupportFragmentManager());
+        mPermissionsFragment = getLazySingleton(activity.getSupportFragmentManager());
     }
 
     public CheckPermissions(@NonNull final Fragment fragment) {
-        mRxPermissionsFragment = getLazySingleton(fragment.getChildFragmentManager());
+        mPermissionsFragment = getLazySingleton(fragment.getChildFragmentManager());
     }
-
-
 
 
     @NonNull
@@ -45,7 +44,7 @@ public class CheckPermissions {
             @Override
             public synchronized PermissionFragment get() {
                 if (rxPermissionsFragment == null) {
-                    rxPermissionsFragment = getRxPermissionsFragment(fragmentManager);
+                    rxPermissionsFragment = getPermissionsFragment(fragmentManager);
                 }
                 return rxPermissionsFragment;
             }
@@ -61,20 +60,20 @@ public class CheckPermissions {
         List<Permission> list = new ArrayList<>(permissions.length);
         List<String> unrequestedPermissions = new ArrayList<>();
         for (String permission : permissions) {
-            mRxPermissionsFragment.get().log("Requesting permission " + permission);
+            mPermissionsFragment.get().log("Requesting permission " + permission);
             if (isGranted(permission)) {
-                mRxPermissionsFragment.get().onGrantedListener(permission);
+                mPermissionsFragment.get().onGrantedListener(permission);
                 continue;
             }
 
             if (isRevoked(permission)) {
-                mRxPermissionsFragment.get().onRevokedListener(permission);
+                mPermissionsFragment.get().onRevokedListener(permission);
                 continue;
             }
-            boolean isExist = mRxPermissionsFragment.get().containsByPermission(permission);
+            boolean isExist = mPermissionsFragment.get().containsByPermission(permission);
             if (!isExist) {
                 unrequestedPermissions.add(permission);
-                mRxPermissionsFragment.get().setSubjectForPermission(permission);
+                mPermissionsFragment.get().setSubjectForPermission(permission);
             }
         }
         if (!unrequestedPermissions.isEmpty()) {
@@ -84,13 +83,13 @@ public class CheckPermissions {
     }
 
     @TargetApi(Build.VERSION_CODES.M)
-   private void requestPermissionsFromFragment(String[] permissions) {
-        mRxPermissionsFragment.get().log("requestPermissionsFromFragment " + TextUtils.join(", ", permissions));
-        mRxPermissionsFragment.get().requestPermissions(permissions);
+    private void requestPermissionsFromFragment(String[] permissions) {
+        mPermissionsFragment.get().log("requestPermissionsFromFragment " + TextUtils.join(", ", permissions));
+        mPermissionsFragment.get().requestPermissions(permissions);
     }
 
 
-    private PermissionFragment getRxPermissionsFragment(@NonNull final FragmentManager fragmentManager) {
+    private PermissionFragment getPermissionsFragment(@NonNull final FragmentManager fragmentManager) {
         PermissionFragment rxPermissionsFragment = findRxPermissionsFragment(fragmentManager);
         boolean isNewInstance = rxPermissionsFragment == null;
         if (isNewInstance) {
@@ -108,12 +107,12 @@ public class CheckPermissions {
     }
 
     public CheckPermissions setLisener(CheckPermissionListener lisener) {
-        mRxPermissionsFragment.get().setPermissionListener(lisener);
+        mPermissionsFragment.get().setPermissionListener(lisener);
         return this;
     }
 
     public CheckPermissions setLogging(boolean logging) {
-        mRxPermissionsFragment.get().setLogging(logging);
+        mPermissionsFragment.get().setLogging(logging);
         return this;
     }
 
@@ -125,7 +124,7 @@ public class CheckPermissions {
      */
     @SuppressWarnings("WeakerAccess")
     public boolean isGranted(String permission) {
-        return !isMarshmallow() || mRxPermissionsFragment.get().isGranted(permission);
+        return !isMarshmallow() || mPermissionsFragment.get().isGranted(permission);
     }
 
     /**
@@ -135,7 +134,7 @@ public class CheckPermissions {
      */
     @SuppressWarnings("WeakerAccess")
     public boolean isRevoked(String permission) {
-        return isMarshmallow() && mRxPermissionsFragment.get().isRevoked(permission);
+        return isMarshmallow() && mPermissionsFragment.get().isRevoked(permission);
     }
 
     boolean isMarshmallow() {
