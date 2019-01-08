@@ -54,18 +54,22 @@ public class CheckPermissions {
 
     public void request(String... permissions) {
         if (permissions == null || permissions.length == 0) {
-            Log.d(TAG, "Checkpermissions.request requires at least one input permission");
+            return;
+        }
+        if (mPermissionsFragment==null||mPermissionsFragment.get()==null){
             return;
         }
         List<Permission> list = new ArrayList<>(permissions.length);
         List<String> unrequestedPermissions = new ArrayList<>();
         for (String permission : permissions) {
+            if (TextUtils.isEmpty(permission)){
+                break;
+            }
             mPermissionsFragment.get().log("Requesting permission " + permission);
             if (isGranted(permission)) {
                 mPermissionsFragment.get().onGrantedListener(permission);
                 continue;
             }
-
             if (isRevoked(permission)) {
                 mPermissionsFragment.get().onRevokedListener(permission);
                 continue;
@@ -107,11 +111,17 @@ public class CheckPermissions {
     }
 
     public CheckPermissions setLisener(CheckPermissionListener lisener) {
+        if (mPermissionsFragment==null||mPermissionsFragment.get()==null){
+            return this;
+        }
         mPermissionsFragment.get().setPermissionListener(lisener);
         return this;
     }
 
     public CheckPermissions setLogging(boolean logging) {
+        if (mPermissionsFragment==null||mPermissionsFragment.get()==null){
+            return this;
+        }
         mPermissionsFragment.get().setLogging(logging);
         return this;
     }

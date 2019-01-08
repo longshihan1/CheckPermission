@@ -39,7 +39,6 @@ public class JumpPermissionUtils {
      * @param activity
      */
     public static void GoToSetting(Activity activity) {
-        Log.i("tag", Build.MANUFACTURER + "--->");
         switch (Build.MANUFACTURER) {
             case MANUFACTURER_HUAWEI:
                 Huawei(activity);
@@ -64,7 +63,6 @@ public class JumpPermissionUtils {
                 break;
             default:
                 ApplicationInfo(activity);
-                Log.e("goToSetting", "目前暂不支持此系统");
                 break;
         }
     }
